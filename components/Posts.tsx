@@ -201,7 +201,6 @@ export function Posts() {
           <PostCard post={item} onLike={handleLike} />
         )}
         keyExtractor={(item) => item.id}
-        scrollEnabled={false}
         contentContainerStyle={styles.listContent}
         ListFooterComponent={
           <Text style={{}}>End of posts</Text>
