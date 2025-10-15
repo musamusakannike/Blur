@@ -1,22 +1,22 @@
 // colors.ts - Dark Theme Color Palette for Social Media App
 
 export const colors = {
-  // Primary Colors - Vibrant accents for CTAs and interactive elements
+  // Primary Colors - Vibrant purple accents for CTAs and interactive elements
   primary: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    400: '#38bdf8',
-    500: '#0ea5e9', // Main primary - vibrant sky blue
-    600: '#0284c7',
-    700: '#0369a1',
-  },
-
-  // Secondary Colors - Purple/Magenta for additional accents
-  secondary: {
-    400: '#d946ef',
-    500: '#a855f7', // Vibrant purple
+    50: '#faf5ff',
+    100: '#f3e8ff',
+    400: '#c084fc',
+    500: '#a855f7', // Main primary - vibrant purple
     600: '#9333ea',
     700: '#7e22ce',
+  },
+
+  // Secondary Colors - Deep magenta/violet for additional accents
+  secondary: {
+    400: '#d946ef',
+    500: '#c026d3', // Deep magenta
+    600: '#a21caf',
+    700: '#86198f',
   },
 
   // Accent Colors - For likes, reactions, highlights
@@ -28,13 +28,13 @@ export const colors = {
     green: '#10b981',
   },
 
-  // Background Colors - Dark theme base
+  // Background Colors - Dark purplish theme base
   background: {
-    primary: '#0f0f0f', // Deep black
-    secondary: '#1a1a1a', // Card backgrounds
-    tertiary: '#262626', // Hover states
-    overlay: 'rgba(0, 0, 0, 0.5)',
-    modal: 'rgba(0, 0, 0, 0.8)',
+    primary: '#0a0612', // Deep dark purple
+    secondary: '#1a0f2e', // Card backgrounds - dark purple
+    tertiary: '#2d1b4e', // Hover states - slightly lighter purple
+    overlay: 'rgba(10, 6, 18, 0.5)',
+    modal: 'rgba(10, 6, 18, 0.8)',
   },
 
   // Text Colors
@@ -71,10 +71,10 @@ export const colors = {
 
   // Gradient bases (use with LinearGradient)
   gradients: {
-    primary: ['#0ea5e9', '#a855f7'], // Sky blue to purple
+    primary: ['#a855f7', '#c026d3'], // Purple to magenta
     accent: ['#ec4899', '#f43f5e'], // Pink to rose
     sunset: ['#f97316', '#f59e0b'], // Orange to amber
-    cool: ['#0ea5e9', '#10b981'], // Blue to green
+    cool: ['#a855f7', '#7e22ce'], // Purple to deep purple
   },
 
   // Opacity utilities

@@ -10,5 +10,3 @@ const CreatePost = () => {
 }
 
 export default CreatePost
-
-const styles = StyleSheet.create({})
