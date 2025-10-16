@@ -90,7 +90,7 @@ function TabBarItem({ route, isActive, onPress }: TabBarItemProps) {
   }));
 
   const indicatorStyle = useAnimatedStyle(() => ({
-    width: withTiming(isActive ? "60%" : "0%"),
+    width: withTiming(isActive ? "100%" : "0%"),
     opacity: withTiming(isActive ? 1 : 0, { duration: 250 }),
   }));
 
@@ -115,22 +115,14 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
   },
   tabBarWrapper: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    borderRadius: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.background.tertiary,
   },
   tabItem: {
-    paddingVertical: 10,
+    paddingTop: 10,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",

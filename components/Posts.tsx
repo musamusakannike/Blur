@@ -203,9 +203,9 @@ export function Posts() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListFooterComponent={
-          <Text style={{}}>End of posts</Text>
+          <Text style={{color: colors.text.muted, marginHorizontal: "auto", paddingVertical: 10}}>End of posts</Text>
         }
-        ListFooterComponentStyle={{paddingBottom: 50}}
+        ListFooterComponentStyle={{paddingBottom: 150}}
       />
     </View>
   );
