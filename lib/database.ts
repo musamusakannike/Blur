@@ -405,13 +405,10 @@ export const groupService = {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return { data: [], error: null };
 
+    // RLS policy will automatically filter groups for the current user.
     const { data, error } = await supabase
       .from('groups')
-      .select(`
-        *,
-        group_members!inner(user_id)
-      `)
-      .eq('group_members.user_id', user.id)
+      .select('*')
       .order('created_at', { ascending: false });
 
     return { data, error };

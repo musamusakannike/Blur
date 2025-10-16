@@ -30,6 +30,7 @@ This guide will walk you through setting up Supabase for the Blur anonymous soci
 ## Step 3: Set Up Environment Variables
 
 1. Create a `.env` file in your project root:
+
 ```bash
 EXPO_PUBLIC_SUPABASE_PROJECT_URL=your_project_url_here
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
@@ -42,12 +43,14 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 Run the following SQL commands in your Supabase SQL Editor (Dashboard → SQL Editor):
 
 ### 1. Enable Row Level Security (RLS)
+
 ```sql
 -- Enable RLS on all tables
 ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 ```
 
 ### 2. Create Custom Types
+
 ```sql
 -- Create enum for post types
 CREATE TYPE post_type AS ENUM ('confession', 'secret', 'oops', 'general', 'question', 'vent');
@@ -62,6 +65,7 @@ CREATE TYPE portal_status AS ENUM ('active', 'expired', 'disabled');
 ### 3. Create Tables
 
 #### Users Profile Table
+
 ```sql
 CREATE TABLE public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
@@ -88,6 +92,7 @@ CREATE POLICY "Users can insert own profile" ON public.profiles
 ```
 
 #### Portals Table
+
 ```sql
 CREATE TABLE public.portals (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -124,6 +129,7 @@ CREATE POLICY "Users can delete own portals" ON public.portals
 ```
 
 #### Portal Messages Table
+
 ```sql
 CREATE TABLE public.portal_messages (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -154,6 +160,7 @@ CREATE POLICY "Portal owners can view messages" ON public.portal_messages
 ```
 
 #### Posts Table
+
 ```sql
 CREATE TABLE public.posts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -187,6 +194,7 @@ CREATE POLICY "Users can delete own posts" ON public.posts
 ```
 
 #### Comments Table (with threading support)
+
 ```sql
 CREATE TABLE public.comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -220,6 +228,7 @@ CREATE POLICY "Users can delete own comments" ON public.comments
 ```
 
 #### Groups Table
+
 ```sql
 CREATE TABLE public.groups (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -236,13 +245,7 @@ ALTER TABLE public.groups ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
 CREATE POLICY "Group members can view groups" ON public.groups
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.group_members 
-      WHERE group_members.group_id = groups.id 
-      AND group_members.user_id = auth.uid()
-    )
-  );
+  FOR SELECT USING ( is_group_member(auth.uid(), id) );
 
 CREATE POLICY "Users can create groups" ON public.groups
   FOR INSERT WITH CHECK (auth.uid() = created_by);
@@ -255,6 +258,7 @@ CREATE POLICY "Group creators can delete groups" ON public.groups
 ```
 
 #### Group Members Table
+
 ```sql
 CREATE TABLE public.group_members (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -269,30 +273,26 @@ CREATE TABLE public.group_members (
 ALTER TABLE public.group_members ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
-CREATE POLICY "Group members can view group members" ON public.group_members
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.group_members gm 
-      WHERE gm.group_id = group_members.group_id 
-      AND gm.user_id = auth.uid()
-    )
-  );
+CREATE POLICY "Group members can view other members in their groups" ON public.group_members
+  FOR SELECT USING ( is_group_member(auth.uid(), group_id) );
 
 CREATE POLICY "Group admins can add members" ON public.group_members
   FOR INSERT WITH CHECK (
     EXISTS (
-      SELECT 1 FROM public.group_members gm 
-      WHERE gm.group_id = group_members.group_id 
-      AND gm.user_id = auth.uid() 
+      SELECT 1 FROM public.group_members gm
+      WHERE gm.group_id = group_members.group_id
+      AND gm.user_id = auth.uid()
       AND gm.role = 'admin'
     )
   );
 
 CREATE POLICY "Users can join groups" ON public.group_members
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-```
 
+  ```
+  
 #### Group Messages Table
+
 ```sql
 CREATE TABLE public.group_messages (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -328,6 +328,7 @@ CREATE POLICY "Group members can create messages" ON public.group_messages
 ```
 
 #### Likes Table
+
 ```sql
 CREATE TABLE public.likes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -357,9 +358,25 @@ CREATE POLICY "Users can delete own likes" ON public.likes
   FOR DELETE USING (auth.uid() = user_id);
 ```
 
+```sql
+-- Function to check group membership without causing recursion
+CREATE OR REPLACE FUNCTION is_group_member(user_id_to_check UUID, group_id_to_check UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+  -- This function runs with the privileges of the user who defined it, bypassing RLS.
+  RETURN EXISTS (
+    SELECT 1
+    FROM public.group_members
+    WHERE user_id = user_id_to_check AND group_id = group_id_to_check
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
 ### 4. Create Functions and Triggers
 
 #### Update timestamps function
+
 ```sql
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -371,6 +388,7 @@ $$ language 'plpgsql';
 ```
 
 #### Apply triggers
+
 ```sql
 -- Apply update triggers
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON public.profiles
@@ -390,6 +408,7 @@ CREATE TRIGGER update_groups_updated_at BEFORE UPDATE ON public.groups
 ```
 
 #### Update counters function
+
 ```sql
 -- Function to update post likes count
 CREATE OR REPLACE FUNCTION update_post_likes_count()
@@ -469,6 +488,7 @@ $$ language 'plpgsql';
 ```
 
 #### Apply counter triggers
+
 ```sql
 -- Apply counter triggers
 CREATE TRIGGER update_post_likes_count_trigger
@@ -494,10 +514,12 @@ CREATE TRIGGER update_comment_replies_count_trigger
 2. Configure the following:
 
 ### Email Authentication
+
 - Enable "Enable email confirmations" if desired
 - Set "Site URL" to your app's URL (for development: `exp://192.168.1.100:8081`)
 
 ### Google OAuth
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing
 3. Enable Google+ API
@@ -508,6 +530,7 @@ CREATE TRIGGER update_comment_replies_count_trigger
 8. Enable Google provider and add your credentials
 
 ### Phone Authentication (Optional)
+
 - Enable if you want phone number authentication
 
 ## Step 6: Set Up Storage (Optional)
@@ -522,11 +545,13 @@ If you want to store images/files:
 ## Step 7: Test Your Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm start
 ```
@@ -536,12 +561,14 @@ npm start
 ## Step 8: Production Deployment
 
 ### Environment Variables for Production
+
 ```bash
 EXPO_PUBLIC_SUPABASE_PROJECT_URL=https://your-project-id.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
 ```
 
 ### Security Considerations
+
 1. Enable RLS on all tables (already done in schema)
 2. Review and test all policies
 3. Set up proper CORS settings
@@ -566,6 +593,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
 ## Next Steps
 
 After completing this setup:
+
 1. Test all authentication flows
 2. Verify database operations work correctly
 3. Set up monitoring and alerts
