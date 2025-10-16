@@ -1,12 +1,6 @@
 import { colors } from "@/lib/colors";
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -197,15 +191,21 @@ export function Posts() {
     <View style={styles.container}>
       <FlatList
         data={posts}
-        renderItem={({ item }) => (
-          <PostCard post={item} onLike={handleLike} />
-        )}
+        renderItem={({ item }) => <PostCard post={item} onLike={handleLike} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListFooterComponent={
-          <Text style={{color: colors.text.muted, marginHorizontal: "auto", paddingVertical: 10}}>End of posts</Text>
+          <Text
+            style={{
+              color: colors.text.muted,
+              marginHorizontal: "auto",
+              paddingVertical: 10,
+            }}
+          >
+            End of posts
+          </Text>
         }
-        ListFooterComponentStyle={{paddingBottom: 150}}
+        ListFooterComponentStyle={{ paddingBottom: 150 }}
       />
     </View>
   );
@@ -235,12 +235,14 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: 16,
     fontWeight: "700",
+    fontFamily: "OpenSans_700Bold",
     color: colors.text.primary,
   },
   timestamp: {
     fontSize: 12,
     color: colors.text.tertiary,
     marginTop: 2,
+    fontFamily: "OpenSans_400Regular",
   },
   postContent: {
     fontSize: 14,
@@ -248,6 +250,7 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     marginBottom: 12,
     fontWeight: "400",
+    fontFamily: "OpenSans_400Regular",
   },
   tagsContainer: {
     flexDirection: "row",
@@ -266,6 +269,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.primary[400],
     fontWeight: "600",
+    fontFamily: "OpenSans_600SemiBold",
   },
   interactionsContainer: {
     flexDirection: "row",
@@ -284,5 +288,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.text.secondary,
     fontWeight: "600",
+    fontFamily: "OpenSans_600SemiBold",
   },
 });
