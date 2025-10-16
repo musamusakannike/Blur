@@ -1,102 +1,42 @@
 import { colors } from "@/lib/colors";
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, FlatList, RefreshControl } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { postService, Post } from "@/lib/database";
+import { router } from "expo-router";
 
-interface Post {
-  id: string;
-  author: string;
-  timestamp: string;
-  content: string;
-  likes: number;
-  comments: number;
-  tags: string[];
+interface PostWithLiked extends Post {
   liked?: boolean;
 }
-
-const MOCK_POSTS: Post[] = [
-  {
-    id: "1",
-    author: "Anonymous",
-    timestamp: "2h",
-    content:
-      "I'm so nervous about my upcoming presentation. I've been practicing for weeks, but I still feel like I'm going to mess it up. Any tips for staying calm and confident?",
-    likes: 12,
-    comments: 5,
-    tags: ["#confession"],
-  },
-  {
-    id: "2",
-    author: "Anonymous",
-    timestamp: "1d",
-    content:
-      "I have a secret crush on my best friend's sibling. It's been going on for months, and I don't know what to do. I'm afraid of ruining our friendship if I say anything.",
-    likes: 25,
-    comments: 10,
-    tags: ["#secret"],
-  },
-  {
-    id: "3",
-    author: "Anonymous",
-    timestamp: "3d",
-    content:
-      "I accidentally sent a text meant for my partner to my boss. It was a silly meme, but I'm mortified. How do I recover from this?",
-    likes: 8,
-    comments: 3,
-    tags: ["#oops"],
-  },
-  {
-    id: "4",
-    author: "Anonymous",
-    timestamp: "2h",
-    content:
-      "I'm so nervous about my upcoming presentation. I've been practicing for weeks, but I still feel like I'm going to mess it up. Any tips for staying calm and confident?",
-    likes: 12,
-    comments: 5,
-    tags: ["#confession"],
-  },
-  {
-    id: "5",
-    author: "Anonymous",
-    timestamp: "1d",
-    content:
-      "I have a secret crush on my best friend's sibling. It's been going on for months, and I don't know what to do. I'm afraid of ruining our friendship if I say anything.",
-    likes: 25,
-    comments: 10,
-    tags: ["#secret"],
-  },
-  {
-    id: "6",
-    author: "Anonymous",
-    timestamp: "3d",
-    content:
-      "I accidentally sent a text meant for my partner to my boss. It was a silly meme, but I'm mortified. How do I recover from this?",
-    likes: 8,
-    comments: 3,
-    tags: ["#oops"],
-  },
-];
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface PostCardProps {
-  post: Post;
+  post: PostWithLiked;
   onLike: (id: string) => void;
+  onComment: (id: string) => void;
 }
 
-function PostCard({ post, onLike }: PostCardProps) {
+function PostCard({ post, onLike, onComment }: PostCardProps) {
   const [liked, setLiked] = useState(post.liked || false);
   const scale = useSharedValue(1);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     scale.value = withSpring(1.1, { damping: 10 }, () => {
       scale.value = withSpring(1, { damping: 10 });
     });
+    
+    if (liked) {
+      await postService.unlikePost(post.id);
+    } else {
+      await postService.likePost(post.id);
+    }
+    
     setLiked(!liked);
     onLike(post.id);
   };
@@ -105,13 +45,26 @@ function PostCard({ post, onLike }: PostCardProps) {
     transform: [{ scale: scale.value }],
   }));
 
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds}s`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    return `${Math.floor(diffInSeconds / 86400)}d`;
+  };
+
   return (
-    <View style={styles.postCard}>
+    <Pressable style={styles.postCard} onPress={() => onComment(post.id)}>
       {/* Header */}
       <View style={styles.postHeader}>
         <View>
-          <Text style={styles.authorName}>{post.author}</Text>
-          <Text style={styles.timestamp}>{post.timestamp}</Text>
+          <Text style={styles.authorName}>
+            {post.is_anonymous ? 'Anonymous' : (post.author_name || 'Anonymous')}
+          </Text>
+          <Text style={styles.timestamp}>{formatTimeAgo(post.created_at)}</Text>
         </View>
         <Pressable hitSlop={8}>
           <Ionicons
@@ -129,9 +82,12 @@ function PostCard({ post, onLike }: PostCardProps) {
       <View style={styles.tagsContainer}>
         {post.tags.map((tag, index) => (
           <View key={index} style={styles.tag}>
-            <Text style={styles.tagText}>{tag}</Text>
+            <Text style={styles.tagText}>#{tag}</Text>
           </View>
         ))}
+        <View style={styles.tag}>
+          <Text style={styles.tagText}>#{post.post_type}</Text>
+        </View>
       </View>
 
       {/* Interactions */}
@@ -151,17 +107,20 @@ function PostCard({ post, onLike }: PostCardProps) {
               liked && { color: colors.accent.pink },
             ]}
           >
-            {post.likes + (liked ? 1 : 0)}
+            {post.likes_count}
           </Text>
         </AnimatedPressable>
 
-        <Pressable style={styles.interactionItem}>
+        <Pressable 
+          style={styles.interactionItem}
+          onPress={() => onComment(post.id)}
+        >
           <MaterialCommunityIcons
             name="message-outline"
             size={18}
             color={colors.text.secondary}
           />
-          <Text style={styles.interactionCount}>{post.comments}</Text>
+          <Text style={styles.interactionCount}>{post.comments_count}</Text>
         </Pressable>
 
         <Pressable style={styles.interactionItem}>
@@ -172,28 +131,95 @@ function PostCard({ post, onLike }: PostCardProps) {
           />
         </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 export function Posts() {
-  const [posts, setPosts] = useState(MOCK_POSTS);
+  const [posts, setPosts] = useState<PostWithLiked[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const handleLike = (id: string) => {
-    setPosts(
-      posts.map((post) =>
-        post.id === id ? { ...post, liked: !post.liked } : post
-      )
-    );
+  const loadPosts = async () => {
+    try {
+      const { data, error } = await postService.getPosts();
+      if (error) {
+        console.error('Error loading posts:', error);
+        return;
+      }
+      
+      // Check which posts are liked by current user
+      const postsWithLikes = await Promise.all(
+        (data || []).map(async (post) => {
+          const { data: isLiked } = await postService.isPostLiked(post.id);
+          return { ...post, liked: isLiked };
+        })
+      );
+      
+      setPosts(postsWithLikes);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const handleLike = async (id: string) => {
+    setPosts(posts.map(post => 
+      post.id === id 
+        ? { 
+            ...post, 
+            liked: !post.liked,
+            likes_count: post.liked ? post.likes_count - 1 : post.likes_count + 1
+          } 
+        : post
+    ));
+  };
+
+  const handleComment = (id: string) => {
+    router.push(`/post/${id}`);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadPosts();
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading posts...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <FlatList
         data={posts}
-        renderItem={({ item }) => <PostCard post={item} onLike={handleLike} />}
+        renderItem={({ item }) => (
+          <PostCard 
+            post={item} 
+            onLike={handleLike} 
+            onComment={handleComment}
+          />
+        )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary[500]}
+          />
+        }
         ListFooterComponent={
           <Text
             style={{
