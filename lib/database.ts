@@ -374,30 +374,17 @@ export const groupService = {
     description?: string;
     is_private?: boolean;
   }) {
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return { error: new Error('Not authenticated') };
-
     const { data: group, error } = await supabase
-      .from('groups')
-      .insert({
-        ...data,
-        created_by: user.id,
-        is_private: data.is_private ?? true,
-      })
-      .select()
-      .single();
+      .rpc('create_group_and_add_admin', {
+        group_name: data.name,
+        group_description: data.description,
+        group_is_private: data.is_private ?? true,
+      });
 
-    if (!error && group) {
-      // Add creator as admin
-      await supabase
-        .from('group_members')
-        .insert({
-          group_id: group.id,
-          user_id: user.id,
-          role: 'admin',
-        });
-    }
-
+    // Note: The RPC returns the group ID, not the full group object.
+    // If you need the full group object, you can do another select,
+    // but for now, we just care about success/error.
+    // The main list will refresh and show the new group.
     return { data: group, error };
   },
 

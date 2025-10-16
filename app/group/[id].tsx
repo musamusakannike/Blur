@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -25,7 +25,7 @@ export default function GroupDetail() {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [sending, setSending] = useState(false);
 
-  const loadGroup = async () => {
+  const loadGroup = useCallback(async () => {
     try {
       // For now, we'll get the group from the groups list
       // In a real app, you'd have a getGroupById function
@@ -48,9 +48,9 @@ export default function GroupDetail() {
       console.error('Error loading group:', error);
       Alert.alert('Error', 'Failed to load group');
     }
-  };
+  }, [id]);
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     try {
       const { data, error } = await groupService.getGroupMessages(id as string);
       if (error) {
@@ -64,12 +64,12 @@ export default function GroupDetail() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [id])
 
   useEffect(() => {
     loadGroup();
     loadMessages();
-  }, [id]);
+  }, [id, loadGroup, loadMessages]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !group) return;
@@ -89,6 +89,7 @@ export default function GroupDetail() {
       setNewMessage('');
       loadMessages();
     } catch (error) {
+      console.error(error)
       Alert.alert('Error', 'Failed to send message');
     } finally {
       setSending(false);
@@ -146,14 +147,14 @@ export default function GroupDetail() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </Pressable>
         <View style={styles.headerInfo}>
           <Text style={styles.groupName}>{group.name}</Text>
-          <Text style={styles.groupDescription}>{group.description}</Text>
+          {group.description && (<Text style={styles.groupDescription}>{group.description}</Text>)}
         </View>
         <Pressable style={styles.menuButton}>
           <Ionicons name="ellipsis-vertical" size={24} color={colors.text.primary} />
@@ -224,7 +225,7 @@ export default function GroupDetail() {
           </Pressable>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -271,10 +272,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
   },
   headerInfo: {
     flex: 1,

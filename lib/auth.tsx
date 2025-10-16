@@ -48,30 +48,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
+const signUp = async (email: string, password: string, username: string) => {
+    // Pass the username in the options.data field
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username: username,
+          display_name: username, // You can set a default display name here
+        }
+      }
     });
 
-    if (!error && data.user) {
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          username,
-          display_name: username,
-        });
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-      }
-    }
+    // The database trigger will now handle profile creation automatically.
+    // No need to insert from the client-side anymore.
 
     return { error };
   };
-
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

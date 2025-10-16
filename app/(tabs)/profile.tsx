@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/lib/colors';
 import { useAuth } from '@/lib/auth';
 import { profileService, Profile as ProfileType } from '@/lib/database';
+import { router } from 'expo-router';
 
 export default function Profile() {
   const { user, signOut, updateProfile } = useAuth();
@@ -83,6 +84,7 @@ export default function Profile() {
             if (error) {
               Alert.alert('Error', error.message);
             }
+            router.replace("/auth/login")
           },
         },
       ]
