@@ -4,7 +4,7 @@ Complete API documentation for the Blur anonymous social media platform.
 
 ## Base URL
 
-```
+```md
 http://localhost:5000/api
 ```
 
@@ -12,7 +12,7 @@ http://localhost:5000/api
 
 Most authenticated endpoints require a Bearer token in the Authorization header:
 
-```
+```md
 Authorization: Bearer <your-jwt-token>
 ```
 
@@ -246,6 +246,7 @@ socket.on('room:new-message', (message) => {
 ## Rate Limiting
 
 Currently not implemented but recommended for production:
+
 - Authentication endpoints: 5 requests per minute
 - Room/Portal creation: 10 per hour per user
 - File uploads: 20 per hour per user

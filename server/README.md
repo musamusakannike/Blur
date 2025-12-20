@@ -5,6 +5,7 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 ## Features
 
 ### Room Chats
+
 - Create temporary chat rooms with unique 6-character codes
 - Real-time messaging with Socket.IO
 - Anonymous messaging (no sender tracking)
@@ -13,6 +14,7 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 - Join rooms without authentication or with user account
 
 ### Portals
+
 - Create anonymous message collection portals
 - Users can submit messages anonymously
 - Only portal creator can view submitted messages
@@ -21,6 +23,7 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 - Support for text and media messages
 
 ### Authentication
+
 - JWT-based authentication
 - Email verification
 - Password reset functionality
@@ -28,12 +31,14 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 - Profile management
 
 ### Media Storage
+
 - Support for Cloudinary and Cloudflare R2
 - Image compression with Sharp
 - Multiple file upload support
 - Automatic cleanup of expired media
 
 ### Automated Cleanup
+
 - Cron jobs to delete expired rooms (every 12 hours)
 - Cron jobs to delete expired portals (every 48 hours)
 - Automatic media deletion from cloud storage
@@ -55,6 +60,7 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 ## Installation
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - MongoDB (local or Atlas)
 - Cloudinary or Cloudflare R2 account
@@ -62,17 +68,20 @@ An anonymous-based social media platform built with Node.js, Express, Socket.IO,
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd blur-server
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create `.env` file from `.env.example`:
+
 ```bash
 cp .env.example .env
 ```
@@ -87,11 +96,13 @@ cp .env.example .env
 5. Start the server:
 
 **Development mode:**
+
 ```bash
 npm run dev
 ```
 
 **Production mode:**
+
 ```bash
 npm start
 ```
@@ -101,6 +112,7 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user
@@ -111,6 +123,7 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 - `PUT /api/auth/change-password` - Change password
 
 ### Rooms
+
 - `POST /api/rooms` - Create new room (authenticated)
 - `GET /api/rooms/:code` - Get room details
 - `GET /api/rooms/:code/messages` - Get room messages
@@ -119,6 +132,7 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 - `PATCH /api/rooms/:code` - Update room settings (creator only)
 
 ### Portals
+
 - `POST /api/portals` - Create new portal (authenticated)
 - `GET /api/portals/:code` - Get portal details
 - `POST /api/portals/:code/messages` - Submit message to portal
@@ -130,11 +144,15 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 - `PATCH /api/portals/:code` - Update portal settings (creator only)
 
 ### Upload
+
 - `POST /api/upload` - Upload single file
+
 - `POST /api/upload/multiple` - Upload multiple files
 
 ### Admin
+
 - `GET /api/admin/stats` - Get system statistics
+
 - `GET /api/admin/cleanup/stats` - Get cleanup statistics
 - `POST /api/admin/cleanup/rooms` - Manually trigger room cleanup
 - `POST /api/admin/cleanup/portals` - Manually trigger portal cleanup
@@ -143,12 +161,14 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 ## Socket.IO Events
 
 ### Room Events (Client → Server)
+
 - `room:join` - Join a room
 - `room:leave` - Leave a room
 - `room:message` - Send message in room
 - `room:typing` - Send typing indicator
 
 ### Room Events (Server → Client)
+
 - `room:joined` - Successfully joined room
 - `room:error` - Room error occurred
 - `room:deleted` - Room was deleted
@@ -159,13 +179,14 @@ The server will start on `http://localhost:5000` (or your configured PORT).
 - `room:user-typing` - User is typing
 
 ### Portal Events (Server → Client)
+
 - `portal:new-message` - New message submitted to portal
 - `portal:error` - Portal error occurred
 - `portal:deleted` - Portal was deleted
 
 ## Project Structure
 
-```
+```md
 blur-server/
 ├── config/
 │   ├── cloudinary.js       # Cloudinary configuration
