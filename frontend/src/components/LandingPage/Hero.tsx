@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Apple, Smartphone } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const BlurHero = () => {
+  const router = useRouter();
   const textShadowStyle: React.CSSProperties = {
     textShadow: '0 6px 18px rgba(0, 0, 0, 0.35)',
   };
@@ -88,6 +90,7 @@ const BlurHero = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => {router.push("/create-room")}}
             className="bg-white z-30 text-blue-600 font-bold text-xl px-12 py-5 rounded-full shadow-2xl hover:shadow-3xl transition-all"
           >
             Start a room, share the code
