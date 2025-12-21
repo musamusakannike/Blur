@@ -6,7 +6,7 @@ import Hero from "@/components/LandingPage/Hero";
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="bg-linear-to-b from-black via-gray-900 to-black">
       <AutoScrollingText
         sentences={[
           "Say it without your name",

@@ -4,7 +4,7 @@ import { MousePointer2 } from 'lucide-react';
 
 const Experience = () => {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center px-8 py-16">
+    <div className="min-h-screen bg-linear-to-b from-indigo-700 via-black via-30% to-black relative overflow-hidden flex items-center justify-center px-8 py-16">
       {/* Main Heading */}
       <div className="text-center relative z-10">
         <motion.h2 
