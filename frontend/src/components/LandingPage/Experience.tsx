@@ -248,17 +248,6 @@ const Experience = () => {
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rotate-45"></div>
         </motion.div>
       </motion.div>
-
-      {/* Made with Framer Badge */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.5 }}
-        viewport={{ once: true }}
-        className="absolute bottom-8 right-8 bg-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
-      >
-        <span className="text-sm font-semibold">Made in Framer</span>
-      </motion.div>
     </div>
   );
 };
