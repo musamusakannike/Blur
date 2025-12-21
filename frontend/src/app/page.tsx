@@ -1,6 +1,7 @@
 "use client";
 
 import AutoScrollingText from "@/components/LandingPage/AutoScrollingText";
+import Experience from "@/components/LandingPage/Experience";
 import Hero from "@/components/LandingPage/Hero";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
         ]}
       />
       <Hero />
+      <Experience />
     </div>
   );
 }
