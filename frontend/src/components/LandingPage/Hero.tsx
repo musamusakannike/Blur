@@ -69,7 +69,7 @@ const BlurHero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-white font-black text-7xl md:text-9xl leading-tight mb-8"
+            className="relative z-30 text-white font-black text-7xl md:text-9xl leading-tight mb-8"
           >
             real<br />friends<br />real fun
           </motion.h1>
@@ -81,7 +81,7 @@ const BlurHero = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-white text-blue-600 font-bold text-xl px-12 py-5 rounded-full shadow-2xl hover:shadow-3xl transition-all"
+            className="bg-white z-30 text-blue-600 font-bold text-xl px-12 py-5 rounded-full shadow-2xl hover:shadow-3xl transition-all"
           >
             Download the app!
           </motion.button>
