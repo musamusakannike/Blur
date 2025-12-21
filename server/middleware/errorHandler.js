@@ -41,9 +41,22 @@ export const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 401 }
   }
 
+  // Firebase auth errors
+  if (err.code && err.code.startsWith("auth/")) {
+    let message = "Authentication failed"
+    if (err.code === "auth/id-token-expired") {
+      message = "ID token has expired"
+    } else if (err.code === "auth/invalid-id-token") {
+      message = "Invalid ID token"
+    } else if (err.code === "auth/argument-error") {
+      message = "Invalid authentication credentials"
+    }
+    error = { message, statusCode: 401 }
+  }
+
   res.status(error.statusCode || 500).json({
     success: false,
-    error: error.message || "Server Error",
+    message: error.message || "Server Error",
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   })
 }

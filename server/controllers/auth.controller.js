@@ -144,66 +144,58 @@ export const googleLogin = asyncHandler(async (req, res) => {
     })
   }
 
-  try {
-    // Verify ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken)
-    const { email, name, picture, uid } = decodedToken
+  // Verify ID token
+  const decodedToken = await admin.auth().verifyIdToken(idToken)
+  const { email, name, picture, uid } = decodedToken
 
-    // Check if user exists
-    let user = await User.findOne({ email })
+  // Check if user exists
+  let user = await User.findOne({ email })
 
-    if (!user) {
-      // Generate unique username from email part
-      let baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "")
-      if (baseUsername.length < 3) baseUsername = `user${crypto.randomBytes(3).toString("hex")}`
-      
-      let username = baseUsername
-      let counter = 1
-      
-      // Ensure unique username
-      while (await User.findOne({ username })) {
-        username = `${baseUsername}${counter}`
-        counter++
-      }
-
-      // Create new user
-      user = await User.create({
-        username,
-        email,
-        password: crypto.randomBytes(16).toString("hex"), // Random secure password
-        displayName: name || username,
-        avatar: picture,
-        isVerified: true, // Google verified
-      })
+  if (!user) {
+    // Generate unique username from email part
+    let baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "")
+    if (baseUsername.length < 3) baseUsername = `user${crypto.randomBytes(3).toString("hex")}`
+    
+    let username = baseUsername
+    let counter = 1
+    
+    // Ensure unique username
+    while (await User.findOne({ username })) {
+      username = `${baseUsername}${counter}`
+      counter++
     }
 
-    // Update last login
-    user.lastLogin = Date.now()
-    await user.save()
-
-    // Generate token
-    const token = user.generateToken()
-
-    res.status(200).json({
-      success: true,
-      message: "Google login successful",
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        displayName: user.displayName,
-        avatar: user.avatar,
-        isVerified: user.isVerified,
-      },
-    })
-  } catch (error) {
-    logger.error(`Google login error: ${error.message}`)
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
+    // Create new user
+    user = await User.create({
+      username,
+      email,
+      password: crypto.randomBytes(16).toString("hex"), // Random secure password
+      displayName: name || username,
+      avatar: picture,
+      isVerified: true, // Google verified
     })
   }
+
+  // Update last login
+  user.lastLogin = Date.now()
+  await user.save()
+
+  // Generate token
+  const token = user.generateToken()
+
+  res.status(200).json({
+    success: true,
+    message: "Google login successful",
+    token,
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      displayName: user.displayName,
+      avatar: user.avatar,
+      isVerified: user.isVerified,
+    },
+  })
 })
 
 /**
