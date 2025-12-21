@@ -30,7 +30,7 @@ const httpServer = createServer(app)
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: "*",
     credentials: true,
   },
   maxHttpBufferSize: 10e6, // 10MB for file uploads
@@ -43,7 +43,7 @@ connectDB()
 app.use(helmet())
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: "*",
     credentials: true,
   }),
 )
@@ -63,6 +63,7 @@ if (process.env.NODE_ENV === "development") {
     }),
   )
 }
+console.log("Middlewares setup complete")
 
 // Make io accessible to routes
 app.set("io", io)
@@ -77,15 +78,17 @@ app.get("/api/health", (req, res) => {
 })
 
 // API Routes
+console.log("Setting up routes...")
 app.use("/api/auth", authRoutes)
 app.use("/api/rooms", roomRoutes)
 app.use("/api/portals", portalRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use("/api/admin", adminRoutes)
+console.log("Routes setup complete")
 
 // 404 handler
-app.use("*", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "Route not found",
@@ -93,20 +96,31 @@ app.use("*", (req, res) => {
 })
 
 // Error handling middleware
+console.log("Type of errorHandler:", typeof errorHandler)
 app.use(errorHandler)
 
 // Initialize Socket.IO handlers
+console.log("Initializing Socket.IO...")
 initSocketIO(io)
+console.log("Socket.IO initialized")
 
 // Start cron jobs
+console.log("Starting cron jobs...")
 startCronJobs()
+console.log("Cron jobs started")
 
 // Start server
 const PORT = process.env.PORT || 5000
-httpServer.listen(PORT, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
-  console.log(`🚀 Blur server is running on http://localhost:${PORT}`)
-})
+console.log("About to listen on port", PORT)
+try {
+  httpServer.listen(PORT, () => {
+    logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+    console.log(`🚀 Blur server is running on http://localhost:${PORT}`)
+  })
+  console.log("Called listen()")
+} catch (e) {
+  console.error("Error calling listen:", e)
+}
 
 // Graceful shutdown
 process.on("SIGTERM", () => {

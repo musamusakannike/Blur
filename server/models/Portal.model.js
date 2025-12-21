@@ -122,7 +122,7 @@ const portalSchema = new mongoose.Schema(
 portalSchema.plugin(mongoosePaginate)
 
 // Index for quick code lookup
-portalSchema.index({ code: 1 })
+// portalSchema.index({ code: 1 }) // Redundant with unique: true
 portalSchema.index({ creator: 1, expiresAt: -1 })
 
 // Check if portal is expired

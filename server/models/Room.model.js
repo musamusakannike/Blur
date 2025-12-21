@@ -108,7 +108,7 @@ const roomSchema = new mongoose.Schema(
 roomSchema.plugin(mongoosePaginate)
 
 // Index for quick code lookup
-roomSchema.index({ code: 1 })
+// roomSchema.index({ code: 1 }) // Redundant with unique: true
 
 // Check if room is expired
 roomSchema.methods.isExpired = function () {
