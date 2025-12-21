@@ -54,10 +54,21 @@ export const initSocketIO = (io) => {
         socket.join(roomCode.toUpperCase())
         socket.currentRoom = roomCode.toUpperCase()
 
-        // Notify user
+        // Prepare existing messages
+        const existingMessages = room.messages.map((msg) => ({
+          id: msg._id,
+          content: msg.content,
+          type: msg.type,
+          mediaUrl: msg.mediaUrl,
+          mediaSize: msg.mediaSize,
+          createdAt: msg.createdAt,
+        }))
+
+        // Notify user with existing messages
         socket.emit("room:joined", {
           roomCode: room.code,
           participantsCount: room.getParticipantsCount(),
+          messages: existingMessages,
         })
 
         // Notify other participants

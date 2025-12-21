@@ -74,10 +74,19 @@ export default function RoomPage({ params }: RoomPageProps) {
       setIsJoined(false);
     });
 
-    socketInstance.on('room:joined', ({ participantsCount: count }) => {
+    socketInstance.on('room:joined', ({ participantsCount: count, messages: existingMessages }) => {
       setIsJoined(true);
       setParticipantsCount(count);
       setError('');
+      
+      if (existingMessages && existingMessages.length > 0) {
+        const formattedMessages = existingMessages.map((msg: any) => ({
+          ...msg,
+          createdAt: new Date(msg.createdAt),
+          isMine: false,
+        }));
+        setMessages(formattedMessages);
+      }
     });
 
     socketInstance.on('room:error', ({ message }) => {
