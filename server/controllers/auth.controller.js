@@ -3,6 +3,7 @@ import User from "../models/User.model.js"
 import logger from "../config/logger.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { sendEmail } from "../utils/email.js"
+import admin from "../config/firebase.js"
 
 /**
  * @desc    Register a new user
@@ -126,6 +127,83 @@ export const login = asyncHandler(async (req, res) => {
       isVerified: user.isVerified,
     },
   })
+})
+
+/**
+ * @desc    Login with Google
+ * @route   POST /api/auth/google
+ * @access  Public
+ */
+export const googleLogin = asyncHandler(async (req, res) => {
+  const { idToken } = req.body
+
+  if (!idToken) {
+    return res.status(400).json({
+      success: false,
+      message: "ID token is required",
+    })
+  }
+
+  try {
+    // Verify ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken)
+    const { email, name, picture, uid } = decodedToken
+
+    // Check if user exists
+    let user = await User.findOne({ email })
+
+    if (!user) {
+      // Generate unique username from email part
+      let baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "")
+      if (baseUsername.length < 3) baseUsername = `user${crypto.randomBytes(3).toString("hex")}`
+      
+      let username = baseUsername
+      let counter = 1
+      
+      // Ensure unique username
+      while (await User.findOne({ username })) {
+        username = `${baseUsername}${counter}`
+        counter++
+      }
+
+      // Create new user
+      user = await User.create({
+        username,
+        email,
+        password: crypto.randomBytes(16).toString("hex"), // Random secure password
+        displayName: name || username,
+        avatar: picture,
+        isVerified: true, // Google verified
+      })
+    }
+
+    // Update last login
+    user.lastLogin = Date.now()
+    await user.save()
+
+    // Generate token
+    const token = user.generateToken()
+
+    res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+      },
+    })
+  } catch (error) {
+    logger.error(`Google login error: ${error.message}`)
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    })
+  }
 })
 
 /**

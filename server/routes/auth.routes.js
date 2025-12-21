@@ -11,6 +11,7 @@ import {
   resetPassword,
   updateProfile,
   changePassword,
+  googleLogin,
 } from "../controllers/auth.controller.js"
 
 const router = express.Router()
@@ -45,6 +46,7 @@ const changePasswordValidation = [
 // Routes
 router.post("/register", registerValidation, validate, register)
 router.post("/login", loginValidation, validate, login)
+router.post("/google", googleLogin)
 router.get("/me", protect, getMe)
 router.post("/verify-email/:token", verifyEmail)
 router.post("/forgot-password", forgotPassword)
