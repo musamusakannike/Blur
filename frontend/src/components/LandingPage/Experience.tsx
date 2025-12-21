@@ -9,7 +9,7 @@ const Experience = () => {
 
   return (
     <div
-      className="min-h-screen bg-linear-to-b from-indigo-700 via-black via-30% to-black relative overflow-hidden flex items-center justify-center px-8 py-16"
+      className="min-h-screen bg-linear-to-b from-indigo-700 via-black via-30% to-black relative overflow-hidden flex flex-col items-center justify-center px-4 sm:px-8 py-16"
       style={textShadowStyle}
     >
       {/* Main Heading */}
@@ -43,13 +43,37 @@ const Experience = () => {
         </motion.div>
       </div>
 
+      {/* Mobile bubbles (stacked after main text) */}
+      <div className="md:hidden w-full max-w-md mt-10 space-y-6 relative z-10">
+        <div className="bg-white rounded-3xl px-6 py-5 shadow-2xl">
+          <p className="text-black font-bold text-lg text-center leading-tight">
+            Omo, no stress.<br />Just share code<br />make una yarn.
+          </p>
+        </div>
+        <div className="bg-white rounded-3xl px-6 py-5 shadow-2xl">
+          <p className="text-black font-bold text-lg text-center leading-tight">
+            Drop message<br />for portal side—<br />anonymous gidigba.
+          </p>
+        </div>
+        <div className="bg-white rounded-3xl px-6 py-5 shadow-2xl">
+          <p className="text-black font-bold text-lg text-center leading-tight">
+            Send text,<br />image, audio—<br />if dem allow am.
+          </p>
+        </div>
+        <div className="bg-white rounded-3xl px-6 py-5 shadow-2xl">
+          <p className="text-black font-bold text-lg text-center leading-tight">
+            No long story—<br />everything expire<br />after small time.
+          </p>
+        </div>
+      </div>
+
       {/* Animated Pointer */}
       <motion.div
         initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
         whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         viewport={{ once: true }}
-        className="absolute left-[15%] top-[35%]"
+        className="hidden md:block absolute left-[15%] top-[35%]"
       >
         <motion.div
           animate={{ 
@@ -72,7 +96,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, x: 0, rotate: -5 }}
         transition={{ duration: 0.8, delay: 0.5 }}
         viewport={{ once: true }}
-        className="absolute left-[8%] top-[15%]"
+        className="hidden md:block absolute left-[8%] top-[15%]"
       >
         <motion.div
           animate={{ 
@@ -99,7 +123,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, x: 0, rotate: 5 }}
         transition={{ duration: 0.8, delay: 0.7 }}
         viewport={{ once: true }}
-        className="absolute left-[10%] top-[50%]"
+        className="hidden md:block absolute left-[10%] top-[50%]"
       >
         <motion.div
           animate={{ 
@@ -127,7 +151,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, y: 0, rotate: -15 }}
         transition={{ duration: 0.8, delay: 0.8 }}
         viewport={{ once: true }}
-        className="absolute left-[12%] bottom-[15%]"
+        className="hidden md:block absolute left-[12%] bottom-[15%]"
       >
         <motion.div
           animate={{ 
@@ -151,7 +175,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, x: 0, rotate: 15 }}
         transition={{ duration: 0.8, delay: 0.6 }}
         viewport={{ once: true }}
-        className="absolute right-[15%] top-[20%]"
+        className="hidden md:block absolute right-[15%] top-[20%]"
       >
         <motion.div
           animate={{ 
@@ -175,7 +199,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, x: 0, rotate: -5 }}
         transition={{ duration: 0.8, delay: 0.9 }}
         viewport={{ once: true }}
-        className="absolute right-[8%] top-[35%]"
+        className="hidden md:block absolute right-[8%] top-[35%]"
       >
         <motion.div
           animate={{ 
@@ -203,7 +227,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 1 }}
         viewport={{ once: true }}
-        className="absolute right-[12%] bottom-[30%]"
+        className="hidden md:block absolute right-[12%] bottom-[30%]"
       >
         <motion.div
           animate={{ 
@@ -227,7 +251,7 @@ const Experience = () => {
         whileInView={{ opacity: 1, y: 0, rotate: 5 }}
         transition={{ duration: 0.8, delay: 1.1 }}
         viewport={{ once: true }}
-        className="absolute right-[10%] bottom-[12%]"
+        className="hidden md:block absolute right-[10%] bottom-[12%]"
       >
         <motion.div
           animate={{ 
