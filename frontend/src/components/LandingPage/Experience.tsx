@@ -3,8 +3,15 @@ import { motion } from 'framer-motion';
 import { MousePointer2 } from 'lucide-react';
 
 const Experience = () => {
+  const textShadowStyle: React.CSSProperties = {
+    textShadow: '0 6px 18px rgba(0, 0, 0, 0.35)',
+  };
+
   return (
-    <div className="min-h-screen bg-linear-to-b from-indigo-700 via-black via-30% to-black relative overflow-hidden flex items-center justify-center px-8 py-16">
+    <div
+      className="min-h-screen bg-linear-to-b from-indigo-700 via-black via-30% to-black relative overflow-hidden flex items-center justify-center px-8 py-16"
+      style={textShadowStyle}
+    >
       {/* Main Heading */}
       <div className="text-center relative z-10">
         <motion.h2 
@@ -12,9 +19,9 @@ const Experience = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-white font-black text-6xl md:text-8xl lg:text-9xl leading-tight mb-4"
+          className="text-white font-black text-6xl lg:text-8xl leading-tight mb-4"
         >
-          play q&a<br />games
+          drop a code<br />start a room
         </motion.h2>
         
         <motion.div
@@ -25,16 +32,13 @@ const Experience = () => {
           className="space-y-4"
         >
           <p className="text-white font-black text-4xl md:text-6xl lg:text-7xl">
-            ask me anything
+            anonymous chat
           </p>
-          <p className="text-white font-black text-4xl md:text-6xl lg:text-7xl">
-            never have i ever
+          <p className="text-white font-black text-2xl md:text-4xl lg:text-6xl">
+            rooms expire in hours
           </p>
-          <p className="text-white font-black text-4xl md:text-6xl lg:text-7xl">
-            confessions
-          </p>
-          <p className="text-white font-black text-4xl md:text-6xl lg:text-7xl">
-            3 words
+          <p className="text-white font-black  md:text-4xl">
+            collect messages with portals
           </p>
         </motion.div>
       </div>
@@ -83,7 +87,7 @@ const Experience = () => {
           className="bg-white rounded-full px-8 py-6 shadow-2xl relative"
         >
           <p className="text-black font-bold text-lg md:text-xl text-center leading-tight">
-            You&apos;re a<br />genius,<br />flawless,<br />iconic
+            Omo, no stress.<br />Just share code<br />make una yarn.
           </p>
           <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rotate-45"></div>
         </motion.div>
@@ -111,7 +115,7 @@ const Experience = () => {
           className="bg-white rounded-full px-8 py-6 shadow-2xl relative"
         >
           <p className="text-black font-bold text-lg md:text-xl text-center leading-tight">
-            You&apos;re spicy,<br />gorgeous,<br />beautiful
+            Drop message<br />for portal side—<br />anonymous gidigba.
           </p>
           <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rotate-45"></div>
         </motion.div>
@@ -187,7 +191,7 @@ const Experience = () => {
           className="bg-white rounded-full px-8 py-6 shadow-2xl relative"
         >
           <p className="text-black font-bold text-lg md:text-xl text-center leading-tight">
-            You&apos;re bff,<br />boujee, simp
+            Send text,<br />image, audio—<br />if dem allow am.
           </p>
           <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rotate-45"></div>
         </motion.div>
@@ -239,7 +243,7 @@ const Experience = () => {
           className="bg-white rounded-full px-8 py-6 shadow-2xl relative"
         >
           <p className="text-black font-bold text-lg md:text-xl text-center leading-tight">
-            You&apos;re funny,<br />sheesh, hype
+            No long story—<br />everything expire<br />after small time.
           </p>
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rotate-45"></div>
         </motion.div>

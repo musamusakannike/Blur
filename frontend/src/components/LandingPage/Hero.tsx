@@ -3,8 +3,15 @@ import { motion } from 'framer-motion';
 import { Apple, Smartphone } from 'lucide-react';
 
 const BlurHero = () => {
+  const textShadowStyle: React.CSSProperties = {
+    textShadow: '0 6px 18px rgba(0, 0, 0, 0.35)',
+  };
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700 relative overflow-hidden">
+    <div
+      className="min-h-screen bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700 relative overflow-hidden"
+      style={textShadowStyle}
+    >
       {/* Navigation */}
       <nav className="flex justify-between items-center px-8 py-6">
         <motion.div 
@@ -71,7 +78,7 @@ const BlurHero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="relative z-30 text-white font-black text-7xl md:text-9xl leading-tight mb-8"
           >
-            real<br />friends<br />real fun
+            anonymous<br />rooms & portals<br />no wahala
           </motion.h1>
 
           {/* Download Button */}
@@ -83,7 +90,7 @@ const BlurHero = () => {
             whileTap={{ scale: 0.95 }}
             className="bg-white z-30 text-blue-600 font-bold text-xl px-12 py-5 rounded-full shadow-2xl hover:shadow-3xl transition-all"
           >
-            Download the app!
+            Start a room, share the code
           </motion.button>
 
           {/* Animated Decoration */}
