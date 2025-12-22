@@ -109,6 +109,60 @@ export const getRoomByCode = asyncHandler(async (req, res) => {
 })
 
 /**
+ * @desc    Verify room access with ID and code
+ * @route   POST /api/rooms/:roomId/verify
+ * @access  Public
+ */
+export const verifyRoomAccess = asyncHandler(async (req, res) => {
+  const { roomId } = req.params
+  const { code } = req.body
+
+  // Validate room exists
+  const room = await Room.findById(roomId).select("-messages")
+
+  if (!room) {
+    return res.status(404).json({
+      success: false,
+      message: "Room not found",
+    })
+  }
+
+  // Verify code matches
+  if (room.code !== code.toUpperCase()) {
+    return res.status(403).json({
+      success: false,
+      message: "Invalid room code",
+    })
+  }
+
+  // Check if room is expired
+  if (room.isExpired()) {
+    return res.status(410).json({
+      success: false,
+      message: "This room has expired",
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    verified: true,
+    room: {
+      id: room._id,
+      code: room.code,
+      name: room.name,
+      description: room.description,
+      creatorUsername: room.creatorUsername,
+      participantsCount: room.getParticipantsCount(),
+      maxParticipants: room.maxParticipants,
+      expiresAt: room.expiresAt,
+      lifetime: room.lifetime,
+      settings: room.settings,
+      createdAt: room.createdAt,
+    },
+  })
+})
+
+/**
  * @desc    Get room messages
  * @route   GET /api/rooms/:code/messages
  * @access  Public (must be in room)

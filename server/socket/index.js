@@ -26,12 +26,17 @@ export const initSocketIO = (io) => {
     logger.debug(`Socket connected: ${socket.id}`)
 
     // Join room
-    socket.on("room:join", async ({ roomCode }) => {
+    socket.on("room:join", async ({ roomId, code }) => {
       try {
-        const room = await Room.findOne({ code: roomCode.toUpperCase() })
+        const room = await Room.findById(roomId)
 
         if (!room) {
           return socket.emit("room:error", { message: "Room not found" })
+        }
+
+        // Verify code matches
+        if (room.code !== code.toUpperCase()) {
+          return socket.emit("room:error", { message: "Invalid room code" })
         }
 
         if (room.isExpired()) {
@@ -50,9 +55,10 @@ export const initSocketIO = (io) => {
         })
         await room.save()
 
-        // Join socket room
-        socket.join(roomCode.toUpperCase())
-        socket.currentRoom = roomCode.toUpperCase()
+        // Join socket room using room code
+        socket.join(room.code)
+        socket.currentRoom = room.code
+        socket.currentRoomId = roomId
 
         // Prepare existing messages
         const existingMessages = room.messages.map((msg) => ({
@@ -66,17 +72,18 @@ export const initSocketIO = (io) => {
 
         // Notify user with existing messages
         socket.emit("room:joined", {
+          roomId: room._id,
           roomCode: room.code,
           participantsCount: room.getParticipantsCount(),
           messages: existingMessages,
         })
 
         // Notify other participants
-        socket.to(roomCode.toUpperCase()).emit("room:participant-joined", {
+        socket.to(room.code).emit("room:participant-joined", {
           participantsCount: room.getParticipantsCount(),
         })
 
-        logger.info(`Socket ${socket.id} joined room ${roomCode}`)
+        logger.info(`Socket ${socket.id} joined room ${room.code} (ID: ${roomId})`)
       } catch (error) {
         logger.error(`Error joining room: ${error.message}`)
         socket.emit("room:error", { message: "Failed to join room" })

@@ -24,6 +24,9 @@ const CreateRoom = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [roomCode, setRoomCode] = useState('');
+  const [roomId, setRoomId] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   const textShadowStyle: React.CSSProperties = {
     textShadow: '0 6px 18px rgba(0, 0, 0, 0.35)',
@@ -53,7 +56,7 @@ const CreateRoom = () => {
 
     try {
       await loginWithGoogle();
-      
+
       const response = await api.post('/rooms', {
         name: roomData.name,
         description: roomData.description || undefined,
@@ -61,6 +64,7 @@ const CreateRoom = () => {
       });
 
       if (response.data.success) {
+        setRoomId(response.data.room.id);
         setRoomCode(response.data.room.code);
         setStep(5);
       }
@@ -85,12 +89,12 @@ const CreateRoom = () => {
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
-        animate={{ 
-          opacity: 1, 
-          scale: 1, 
+        animate={{
+          opacity: 1,
+          scale: 1,
           rotate: [0, 15, -10, 15, 0]
         }}
-        transition={{ 
+        transition={{
           duration: 0.8,
           rotate: {
             repeat: Infinity,
@@ -105,12 +109,12 @@ const CreateRoom = () => {
 
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
-        animate={{ 
-          opacity: 1, 
+        animate={{
+          opacity: 1,
           scale: 1,
           rotate: [0, 360]
         }}
-        transition={{ 
+        transition={{
           duration: 1,
           rotate: {
             repeat: Infinity,
@@ -145,9 +149,8 @@ const CreateRoom = () => {
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
-                className={`h-2 rounded-full transition-all ${
-                  i <= step ? 'bg-white w-12' : 'bg-white/30 w-8'
-                }`}
+                className={`h-2 rounded-full transition-all ${i <= step ? 'bg-white w-12' : 'bg-white/30 w-8'
+                  }`}
                 animate={{ width: i <= step ? 48 : 32 }}
               />
             ))}
@@ -269,7 +272,7 @@ const CreateRoom = () => {
                   <Clock size={32} />
                   How long should this room last?
                 </label>
-                
+
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
                   {[1, 2, 3, 4, 5, 6].map((hours) => (
                     <motion.button
@@ -277,11 +280,10 @@ const CreateRoom = () => {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleLifetimeChange(hours)}
-                      className={`aspect-square rounded-2xl font-bold text-2xl transition-all ${
-                        roomData.lifetime === hours
-                          ? 'bg-white text-blue-600 shadow-lg'
-                          : 'bg-white/20 text-white border-2 border-white/30 hover:border-white'
-                      }`}
+                      className={`aspect-square rounded-2xl font-bold text-2xl transition-all ${roomData.lifetime === hours
+                        ? 'bg-white text-blue-600 shadow-lg'
+                        : 'bg-white/20 text-white border-2 border-white/30 hover:border-white'
+                        }`}
                     >
                       <div className="flex flex-col items-center justify-center">
                         <span className="text-3xl md:text-4xl">{hours}</span>
@@ -382,7 +384,7 @@ const CreateRoom = () => {
             </motion.div>
           )}
 
-          {step === 5 && roomCode && (
+          {step === 5 && roomCode && roomId && (
             <motion.div
               key="step5"
               variants={pageVariants}
@@ -402,44 +404,71 @@ const CreateRoom = () => {
                 <h2 className="text-white text-4xl font-black mb-4">
                   Room Created!
                 </h2>
+                <p className="text-white/80 text-lg mb-6">
+                  Share both the link AND code with others to let them join
+                </p>
               </motion.div>
 
-              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-8 mb-6">
-                <p className="text-white/80 text-lg mb-4">Your room code is:</p>
+              {/* Room Link */}
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-4">
+                <p className="text-white/80 text-sm mb-2 font-semibold">📎 Unique Room Link</p>
                 <motion.div
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 200 }}
-                  className="bg-white text-blue-600 font-black text-5xl md:text-6xl py-6 px-8 rounded-2xl tracking-wider shadow-xl"
+                  className="bg-white/30 text-white font-mono text-sm md:text-base py-4 px-4 rounded-xl break-all mb-3"
+                >
+                  {typeof window !== 'undefined' ? `${window.location.origin}/room/${roomId}` : `/room/${roomId}`}
+                </motion.div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      navigator.clipboard.writeText(`${window.location.origin}/room/${roomId}`);
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 2000);
+                    }
+                  }}
+                  className="w-full bg-white/20 backdrop-blur-sm text-white font-bold text-lg px-6 py-3 rounded-full border-2 border-white/30 hover:border-white transition-all"
+                >
+                  {linkCopied ? '✓ Link Copied!' : 'Copy Link'}
+                </motion.button>
+              </div>
+
+              {/* Room Code */}
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-6">
+                <p className="text-white/80 text-sm mb-2 font-semibold">🔑 Room Code</p>
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200 }}
+                  className="bg-white text-blue-600 font-black text-4xl md:text-5xl py-4 px-6 rounded-2xl tracking-wider shadow-xl mb-3"
                 >
                   {roomCode}
                 </motion.div>
-              </div>
-
-              <p className="text-white/80 text-lg mb-8">
-                Share this code with others to let them join your anonymous room!
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     navigator.clipboard.writeText(roomCode);
+                    setCodeCopied(true);
+                    setTimeout(() => setCodeCopied(false), 2000);
                   }}
-                  className="flex-1 bg-white/20 backdrop-blur-sm text-white font-bold text-xl px-8 py-4 rounded-full border-2 border-white/30 hover:border-white transition-all"
+                  className="w-full bg-white/20 backdrop-blur-sm text-white font-bold text-lg px-6 py-3 rounded-full border-2 border-white/30 hover:border-white transition-all"
                 >
-                  Copy Code
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push(`/room/${roomCode}`)}
-                  className="flex-1 bg-white text-blue-600 font-bold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all"
-                >
-                  Enter Room
+                  {codeCopied ? '✓ Code Copied!' : 'Copy Code'}
                 </motion.button>
               </div>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push(`/room/${roomId}`)}
+                className="w-full bg-white text-blue-600 font-bold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all"
+              >
+                Enter Room
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>

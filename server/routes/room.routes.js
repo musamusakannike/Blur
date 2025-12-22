@@ -9,6 +9,7 @@ import {
   getMyRooms,
   deleteRoom,
   updateRoom,
+  verifyRoomAccess,
 } from "../controllers/room.controller.js"
 
 const router = express.Router()
@@ -25,8 +26,19 @@ const createRoomValidation = [
   body("lifetime").isInt({ min: 1, max: 6 }).withMessage("Lifetime must be between 1 and 6 hours"),
 ]
 
+// Validation rules for room verification
+const verifyRoomValidation = [
+  body("code")
+    .trim()
+    .notEmpty()
+    .withMessage("Room code is required")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("Room code must be 6 characters"),
+]
+
 // Routes
 router.post("/", protect, createRoomValidation, validate, createRoom)
+router.post("/:roomId/verify", verifyRoomValidation, validate, verifyRoomAccess)
 router.get("/my/created", protect, getMyRooms)
 router.get("/:code", optionalAuth, getRoomByCode)
 router.get("/:code/messages", optionalAuth, getRoomMessages)
