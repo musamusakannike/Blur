@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Clock, Sparkles, LogIn } from "lucide-react";
+import { ArrowRight, Clock, LogIn } from "lucide-react";
 import { loginWithGoogle, isAuthenticated } from "@/lib/auth";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -366,14 +366,6 @@ const CreateRoom = () => {
               className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-2xl"
             >
               <div className="text-center mb-8">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="inline-block mb-6"
-                >
-                  <Sparkles size={64} className="text-white" />
-                </motion.div>
                 <h2 className="text-white text-3xl font-bold mb-4">
                   Almost there!
                 </h2>
