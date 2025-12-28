@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Clock, Sparkles, LogIn } from 'lucide-react';
-import { loginWithGoogle } from '@/lib/auth';
-import api from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Clock, Sparkles, LogIn } from "lucide-react";
+import { loginWithGoogle, isAuthenticated } from "@/lib/auth";
+import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 interface RoomData {
   name: string;
@@ -17,47 +17,27 @@ const CreateRoom = () => {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [roomData, setRoomData] = useState<RoomData>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     lifetime: 3,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [roomCode, setRoomCode] = useState('');
-  const [roomId, setRoomId] = useState('');
+  const [error, setError] = useState("");
+  const [roomCode, setRoomCode] = useState("");
+  const [roomId, setRoomId] = useState("");
   const [linkCopied, setLinkCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
 
   const textShadowStyle: React.CSSProperties = {
-    textShadow: '0 6px 18px rgba(0, 0, 0, 0.35)',
+    textShadow: "0 6px 18px rgba(0, 0, 0, 0.35)",
   };
 
-  const handleNext = () => {
-    if (step === 1 && !roomData.name.trim()) {
-      setError('Please enter a room name');
-      return;
-    }
-    setError('');
-    setStep(step + 1);
-  };
-
-  const handleSkipDescription = () => {
-    setError('');
-    setStep(3);
-  };
-
-  const handleLifetimeChange = (hours: number) => {
-    setRoomData({ ...roomData, lifetime: hours });
-  };
-
-  const handleGoogleLogin = async () => {
+  const createRoom = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
-      await loginWithGoogle();
-
-      const response = await api.post('/rooms', {
+      const response = await api.post("/rooms", {
         name: roomData.name,
         description: roomData.description || undefined,
         lifetime: roomData.lifetime,
@@ -70,8 +50,56 @@ const CreateRoom = () => {
       }
     } catch (err) {
       const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || 'Failed to create room. Please try again.');
+      setError(
+        error.response?.data?.message ||
+          "Failed to create room. Please try again."
+      );
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNext = async () => {
+    if (step === 1 && !roomData.name.trim()) {
+      setError("Please enter a room name");
+      return;
+    }
+
+    // If we are on step 3 (lifetime) and about to go to step 4 (login),
+    // check if we are already authenticated
+    if (step === 3) {
+      if (isAuthenticated()) {
+        await createRoom();
+        return;
+      }
+    }
+
+    setError("");
+    setStep(step + 1);
+  };
+
+  const handleSkipDescription = () => {
+    setError("");
+    setStep(3);
+  };
+
+  const handleLifetimeChange = (hours: number) => {
+    setRoomData({ ...roomData, lifetime: hours });
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await loginWithGoogle();
+      await createRoom();
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(
+        error.response?.data?.message ||
+          "Failed to create room. Please try again."
+      );
       setIsLoading(false);
     }
   };
@@ -92,15 +120,15 @@ const CreateRoom = () => {
         animate={{
           opacity: 1,
           scale: 1,
-          rotate: [0, 15, -10, 15, 0]
+          rotate: [0, 15, -10, 15, 0],
         }}
         transition={{
           duration: 0.8,
           rotate: {
             repeat: Infinity,
             duration: 2,
-            ease: "easeInOut"
-          }
+            ease: "easeInOut",
+          },
         }}
         className="absolute left-10 top-10 text-7xl"
       >
@@ -112,15 +140,15 @@ const CreateRoom = () => {
         animate={{
           opacity: 1,
           scale: 1,
-          rotate: [0, 360]
+          rotate: [0, 360],
         }}
         transition={{
           duration: 1,
           rotate: {
             repeat: Infinity,
             duration: 10,
-            ease: "linear"
-          }
+            ease: "linear",
+          },
         }}
         className="absolute right-10 top-20 text-6xl"
       >
@@ -149,8 +177,9 @@ const CreateRoom = () => {
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
-                className={`h-2 rounded-full transition-all ${i <= step ? 'bg-white w-12' : 'bg-white/30 w-8'
-                  }`}
+                className={`h-2 rounded-full transition-all ${
+                  i <= step ? "bg-white w-12" : "bg-white/30 w-8"
+                }`}
                 animate={{ width: i <= step ? 48 : 32 }}
               />
             ))}
@@ -175,8 +204,10 @@ const CreateRoom = () => {
                 <input
                   type="text"
                   value={roomData.name}
-                  onChange={(e) => setRoomData({ ...roomData, name: e.target.value })}
-                  onKeyPress={(e) => e.key === 'Enter' && handleNext()}
+                  onChange={(e) =>
+                    setRoomData({ ...roomData, name: e.target.value })
+                  }
+                  onKeyPress={(e) => e.key === "Enter" && handleNext()}
                   placeholder="e.g., Friday Night Vibes"
                   maxLength={100}
                   className="w-full px-6 py-4 rounded-2xl text-xl bg-white/20 backdrop-blur-sm text-white placeholder-white/60 border-2 border-white/30 focus:border-white focus:outline-none transition-all"
@@ -224,7 +255,9 @@ const CreateRoom = () => {
                 </label>
                 <textarea
                   value={roomData.description}
-                  onChange={(e) => setRoomData({ ...roomData, description: e.target.value })}
+                  onChange={(e) =>
+                    setRoomData({ ...roomData, description: e.target.value })
+                  }
                   placeholder="What's this room about?"
                   maxLength={500}
                   rows={4}
@@ -280,14 +313,17 @@ const CreateRoom = () => {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleLifetimeChange(hours)}
-                      className={`aspect-square rounded-2xl font-bold text-2xl transition-all ${roomData.lifetime === hours
-                        ? 'bg-white text-blue-600 shadow-lg'
-                        : 'bg-white/20 text-white border-2 border-white/30 hover:border-white'
-                        }`}
+                      className={`aspect-square rounded-2xl font-bold text-2xl transition-all ${
+                        roomData.lifetime === hours
+                          ? "bg-white text-blue-600 shadow-lg"
+                          : "bg-white/20 text-white border-2 border-white/30 hover:border-white"
+                      }`}
                     >
                       <div className="flex flex-col items-center justify-center">
                         <span className="text-3xl md:text-4xl">{hours}</span>
-                        <span className="text-xs md:text-sm">hour{hours > 1 ? 's' : ''}</span>
+                        <span className="text-xs md:text-sm">
+                          hour{hours > 1 ? "s" : ""}
+                        </span>
                       </div>
                     </motion.button>
                   ))}
@@ -299,9 +335,11 @@ const CreateRoom = () => {
                   className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center"
                 >
                   <p className="text-white text-lg">
-                    Your room will expire in{' '}
-                    <span className="font-black text-2xl">{roomData.lifetime}</span>{' '}
-                    hour{roomData.lifetime > 1 ? 's' : ''}
+                    Your room will expire in{" "}
+                    <span className="font-black text-2xl">
+                      {roomData.lifetime}
+                    </span>{" "}
+                    hour{roomData.lifetime > 1 ? "s" : ""}
                   </p>
                 </motion.div>
               </div>
@@ -331,7 +369,7 @@ const CreateRoom = () => {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
+                  transition={{ type: "spring", stiffness: 200 }}
                   className="inline-block mb-6"
                 >
                   <Sparkles size={64} className="text-white" />
@@ -340,7 +378,8 @@ const CreateRoom = () => {
                   Almost there!
                 </h2>
                 <p className="text-white/80 text-lg mb-8">
-                  Sign in with Google to create your room and get your unique room code
+                  Sign in with Google to create your room and get your unique
+                  room code
                 </p>
               </div>
 
@@ -365,7 +404,11 @@ const CreateRoom = () => {
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 1,
+                        ease: "linear",
+                      }}
                       className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full"
                     />
                     Creating room...
@@ -397,7 +440,7 @@ const CreateRoom = () => {
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 150 }}
+                transition={{ type: "spring", stiffness: 150 }}
                 className="mb-6"
               >
                 <div className="text-8xl mb-4">🎊</div>
@@ -411,38 +454,46 @@ const CreateRoom = () => {
 
               {/* Room Link */}
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-4">
-                <p className="text-white/80 text-sm mb-2 font-semibold">📎 Unique Room Link</p>
+                <p className="text-white/80 text-sm mb-2 font-semibold">
+                  📎 Unique Room Link
+                </p>
                 <motion.div
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
+                  transition={{ type: "spring", stiffness: 200 }}
                   className="bg-white/30 text-white font-mono text-sm md:text-base py-4 px-4 rounded-xl break-all mb-3"
                 >
-                  {typeof window !== 'undefined' ? `${window.location.origin}/room/${roomId}` : `/room/${roomId}`}
+                  {typeof window !== "undefined"
+                    ? `${window.location.origin}/room/${roomId}`
+                    : `/room/${roomId}`}
                 </motion.div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    if (typeof window !== 'undefined') {
-                      navigator.clipboard.writeText(`${window.location.origin}/room/${roomId}`);
+                    if (typeof window !== "undefined") {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/room/${roomId}`
+                      );
                       setLinkCopied(true);
                       setTimeout(() => setLinkCopied(false), 2000);
                     }
                   }}
                   className="w-full bg-white/20 backdrop-blur-sm text-white font-bold text-lg px-6 py-3 rounded-full border-2 border-white/30 hover:border-white transition-all"
                 >
-                  {linkCopied ? '✓ Link Copied!' : 'Copy Link'}
+                  {linkCopied ? "✓ Link Copied!" : "Copy Link"}
                 </motion.button>
               </div>
 
               {/* Room Code */}
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-6">
-                <p className="text-white/80 text-sm mb-2 font-semibold">🔑 Room Code</p>
+                <p className="text-white/80 text-sm mb-2 font-semibold">
+                  🔑 Room Code
+                </p>
                 <motion.div
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
+                  transition={{ type: "spring", stiffness: 200 }}
                   className="bg-white text-blue-600 font-black text-4xl md:text-5xl py-4 px-6 rounded-2xl tracking-wider shadow-xl mb-3"
                 >
                   {roomCode}
@@ -457,7 +508,7 @@ const CreateRoom = () => {
                   }}
                   className="w-full bg-white/20 backdrop-blur-sm text-white font-bold text-lg px-6 py-3 rounded-full border-2 border-white/30 hover:border-white transition-all"
                 >
-                  {codeCopied ? '✓ Code Copied!' : 'Copy Code'}
+                  {codeCopied ? "✓ Code Copied!" : "Copy Code"}
                 </motion.button>
               </div>
 

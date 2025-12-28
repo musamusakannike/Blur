@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import api from "@/lib/api";
-import { getStoredUser, isAuthenticated } from "@/lib/auth";
+import { Plus, LogOut } from "lucide-react";
+import { getStoredUser, isAuthenticated, logout } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
 
 export default function Dashboard() {
@@ -45,19 +46,45 @@ export default function Dashboard() {
     // You could add a toast notification here
   };
 
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4 p-6 bg-gray-900/50 rounded-2xl border border-gray-800">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-2xl font-bold">
-            {user.username?.[0]?.toUpperCase()}
+        <div className="flex items-center justify-between p-6 bg-gray-900/50 rounded-2xl border border-gray-800">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-2xl font-bold">
+              {user.username?.[0]?.toUpperCase()}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">
+                {user.displayName || user.username}
+              </h1>
+              <p className="text-gray-400">@{user.username}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">{user.displayName || user.username}</h1>
-            <p className="text-gray-400">@{user.username}</p>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/create-room")}
+              className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-bold hover:bg-gray-200 transition-colors"
+            >
+              <Plus size={20} />
+              Create Room
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-500/10 text-red-500 px-4 py-2 rounded-full font-bold hover:bg-red-500/20 transition-colors"
+            >
+              <LogOut size={20} />
+              Logout
+            </button>
           </div>
         </div>
 
@@ -113,8 +140,13 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="text-right text-sm text-gray-500">
-                      <div>Expires {formatDistanceToNow(new Date(room.expiresAt), { addSuffix: true })}</div>
-                      <button 
+                      <div>
+                        Expires{" "}
+                        {formatDistanceToNow(new Date(room.expiresAt), {
+                          addSuffix: true,
+                        })}
+                      </div>
+                      <button
                         onClick={() => copyToClipboard(room.code)}
                         className="text-blue-400 hover:text-blue-300 text-xs mt-1"
                       >
@@ -124,42 +156,45 @@ export default function Dashboard() {
                   </div>
                 ))
               )
+            ) : portals.length === 0 ? (
+              <div className="text-center py-12 text-gray-500 bg-gray-900/30 rounded-2xl border border-gray-800 border-dashed">
+                No portals created yet
+              </div>
             ) : (
-              portals.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 bg-gray-900/30 rounded-2xl border border-gray-800 border-dashed">
-                  No portals created yet
-                </div>
-              ) : (
-                portals.map((portal) => (
-                  <div
-                    key={portal.id}
-                    className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 flex justify-between items-center group hover:border-gray-700 transition-colors"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-lg">{portal.name}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs px-2 py-1 bg-gray-800 rounded text-gray-300 font-mono">
-                          {portal.code}
+              portals.map((portal) => (
+                <div
+                  key={portal.id}
+                  className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 flex justify-between items-center group hover:border-gray-700 transition-colors"
+                >
+                  <div>
+                    <h3 className="font-semibold text-lg">{portal.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs px-2 py-1 bg-gray-800 rounded text-gray-300 font-mono">
+                        {portal.code}
+                      </span>
+                      {portal.stats?.unreadMessages > 0 && (
+                        <span className="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded font-medium">
+                          {portal.stats.unreadMessages} new
                         </span>
-                        {portal.stats?.unreadMessages > 0 && (
-                          <span className="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded font-medium">
-                            {portal.stats.unreadMessages} new
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right text-sm text-gray-500">
-                      <div>Expires {formatDistanceToNow(new Date(portal.expiresAt), { addSuffix: true })}</div>
-                      <button 
-                        onClick={() => copyToClipboard(portal.code)}
-                        className="text-blue-400 hover:text-blue-300 text-xs mt-1"
-                      >
-                        Copy Code
-                      </button>
+                      )}
                     </div>
                   </div>
-                ))
-              )
+                  <div className="text-right text-sm text-gray-500">
+                    <div>
+                      Expires{" "}
+                      {formatDistanceToNow(new Date(portal.expiresAt), {
+                        addSuffix: true,
+                      })}
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(portal.code)}
+                      className="text-blue-400 hover:text-blue-300 text-xs mt-1"
+                    >
+                      Copy Code
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         )}
