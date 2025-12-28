@@ -79,6 +79,13 @@ export default function Dashboard() {
               Create Room
             </button>
             <button
+              onClick={() => router.push("/create-portal")}
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-full font-bold hover:bg-blue-600 transition-colors"
+            >
+              <Plus size={20} />
+              Create Portal
+            </button>
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 bg-red-500/10 text-red-500 px-4 py-2 rounded-full font-bold hover:bg-red-500/20 transition-colors"
             >
@@ -164,33 +171,49 @@ export default function Dashboard() {
               portals.map((portal) => (
                 <div
                   key={portal.id}
-                  className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 flex justify-between items-center group hover:border-gray-700 transition-colors"
+                  className="p-4 bg-gray-900/50 rounded-xl border border-gray-800 hover:border-gray-700 transition-colors"
                 >
-                  <div>
-                    <h3 className="font-semibold text-lg">{portal.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-2 py-1 bg-gray-800 rounded text-gray-300 font-mono">
-                        {portal.code}
-                      </span>
-                      {portal.stats?.unreadMessages > 0 && (
-                        <span className="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded font-medium">
-                          {portal.stats.unreadMessages} new
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-lg">{portal.name}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs px-2 py-1 bg-gray-800 rounded text-gray-300 font-mono">
+                          {portal.code}
                         </span>
-                      )}
+                        {portal.stats?.unreadMessages > 0 && (
+                          <span className="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded font-medium">
+                            {portal.stats.unreadMessages} new
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right text-sm text-gray-500">
+                      <div>
+                        Expires{" "}
+                        {formatDistanceToNow(new Date(portal.expiresAt), {
+                          addSuffix: true,
+                        })}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right text-sm text-gray-500">
-                    <div>
-                      Expires{" "}
-                      {formatDistanceToNow(new Date(portal.expiresAt), {
-                        addSuffix: true,
-                      })}
-                    </div>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => copyToClipboard(portal.code)}
-                      className="text-blue-400 hover:text-blue-300 text-xs mt-1"
+                      onClick={() =>
+                        router.push(`/portal/${portal.code}/messages`)
+                      }
+                      className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
                     >
-                      Copy Code
+                      View Messages
+                    </button>
+                    <button
+                      onClick={() =>
+                        copyToClipboard(
+                          `${window.location.origin}/portal/${portal.code}`
+                        )
+                      }
+                      className="flex-1 bg-gray-800 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                    >
+                      Copy Link
                     </button>
                   </div>
                 </div>
